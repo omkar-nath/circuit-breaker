@@ -1,8 +1,7 @@
 {
   "compilerOptions": {
-    "typeRoots": ["./node_modules/@types", "./path/to/your/types"], // Add the path to your types directory
-     "esModuleInterop": true
+    "typeRoots": ["./node_modules/@types"], 
+    "esModuleInterop": true
   },
  
-  "include": ["src/**/*", "path/to/your/types/**/*"] // Include your types directory
-}
+  "include": ["src/**/*"] }

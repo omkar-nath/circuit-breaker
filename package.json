@@ -1,14 +1,14 @@
 {
   "name": "circuit-breaker",
   "version": "1.0.0",
-  "description": "",
+  "description": "A simple circuit breaker written in typescript",
   "main": "index.js",
   "scripts": {
     "test": "jest"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "@types/jest": "^29.5.14",
     "@types/node": "^22.13.1",
