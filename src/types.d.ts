@@ -1,14 +1,13 @@
-type CircuitBreakerParameters = {
+interface CircuitBreakerParameters {
+  capacity?: number;
   timeout?: number;
-  maxFailures?: number;
-  errorThresholdPercentage?: number;
+  failureThresholdPercentage?: number; // Failure threshold as a percentage
   successThreshold?: number;
-  capacity: number;
-  errorFilter: Function;
-  cache?: boolean;
+  halfOpenTimeout?: number;
+  cacheEnabled?: boolean;
   cacheTTL?: number;
-};
-
+  cacheKey?: string;
+}
 type CacheParameters = {
   maxEntries?: number;
 };

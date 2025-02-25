@@ -9,14 +9,6 @@ enum State {
   HALF_OPEN = "HALF-OPEN",
 }
 
-interface CircuitBreakerParameters {
-  capacity?: number;
-  timeout?: number;
-  failureThresholdPercentage?: number; // Failure threshold as a percentage
-  successThreshold?: number;
-  halfOpenTimeout?: number;
-}
-
 class CircuitBreaker extends EventEmitter {
   action: Function;
   options: CircuitBreakerParameters;
@@ -39,6 +31,9 @@ class CircuitBreaker extends EventEmitter {
       failureThresholdPercentage: options.failureThresholdPercentage || 50, // Default to 50%
       successThreshold: options.successThreshold || 2,
       halfOpenTimeout: options.halfOpenTimeout || 5000,
+      cacheEnabled: options.cacheEnabled || false,
+      cacheTTL: options.cacheTTL || 0,
+      cacheKey: options.cacheKey,
     };
 
     this.state = State.CLOSED;
@@ -107,6 +102,14 @@ class CircuitBreaker extends EventEmitter {
 
     this.emit("fire", args);
 
+    if (this.options.cacheEnabled) {
+      const cached = this.cache.get(this.options.cacheKey);
+      if (cached) {
+        this.emit("cacheHit");
+        return cached;
+      }
+    }
+
     if (this.state === State.OPEN) {
       throw new CircuitBreakerError("CircuitBreaker is open");
     }
@@ -136,7 +139,6 @@ class CircuitBreaker extends EventEmitter {
         }
 
         try {
-          console.log("Helllll", context, this.action);
           const actionResult = this.action.apply(context, args);
           const result = await (typeof actionResult.then === "function"
             ? actionResult
@@ -147,6 +149,13 @@ class CircuitBreaker extends EventEmitter {
             this.semaphore.release();
             this.recordSuccess();
             resolve(result);
+            this.cache.set(
+              this.options.cacheKey,
+              result,
+              this.options.cacheTTL > 0
+                ? Date.now() + this.options.cacheTTL
+                : 0,
+            );
           }
         } catch (error) {
           if (!timeoutError) {
